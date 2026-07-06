@@ -368,6 +368,31 @@
     .add-more svg { opacity: 0.5; }
     .add-more:hover svg { opacity: 1; }
 
+    /* ── SEARCH ── */
+    .search-wrap {
+      max-width: 480px;
+      margin: 0 auto 32px;
+      padding: 0 24px;
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 12px 44px 12px 16px;
+      font-family: 'Frank Ruhl Libre', serif;
+      font-size: 1rem;
+      border: 1px solid rgba(196,151,58,0.4);
+      background: var(--cream);
+      color: var(--ink);
+      outline: none;
+      text-align: right;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--gold); }
+    .search-wrap input::placeholder { color: #B0A090; }
+    .search-wrap svg { position: absolute; left: 32px; top: 50%; transform: translateY(-50%); opacity: 0.4; pointer-events: none; }
+    .book-card.hidden { display: none; }
+    .no-results { text-align: center; color: #8A7A68; font-size: 0.95rem; padding: 40px 0; grid-column: 1/-1; display: none; }
+
     /* ── PRINT STYLES ── */
     @media print {
       body { background: white; padding: 0; }
@@ -393,6 +418,11 @@
   </header>
 
   <p class="edit-hint">✏️ לחצו על כל שדה כדי לערוך - שם הספר, מחבר, מחיר</p>
+
+  <div class="search-wrap">
+    <input type="search" id="searchInput" placeholder="חיפוש לפי שם ספר או מחבר..." oninput="filterBooks(this.value)" />
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  </div>
 
   <div class="grid" id="bookGrid">
 
@@ -433,7 +463,7 @@
       ["WhatsApp Image 2026-07-03 at 16.32.24.jpeg", "יותם - בלש פרטי + בלש חוקר - 2 ספרים", "גלילה רון פדר-עמית", "", false, "~65 ₪ לספר (אומדן - אותה הוצאה)"],
       ["WhatsApp Image 2026-07-03 at 16.35.01.jpeg", "ילדי בית העץ - 2 ספרים", "רן כהן אהרונוב", "", false, "65 ₪ לספר | https://www.steimatzky.co.il/013470001"],
       ["WhatsApp Image 2026-07-03 at 16.49.06.jpeg", "הרפתקאות דוד אריה - 7 ספרים", "ינץ לוי", "", false, "~50-60 ₪ לספר (אומדן - סדרה ישנה)"],
-      ["WhatsApp Image 2026-07-03 at 16.26.55.jpeg", "סדרת \"ילדים כמוני\" - 8 ספרים עם צילומים", "לאה גולדברג", "", false, "~65-75 ₪ לספר (אומדן)"],
+      ["WhatsApp Image 2026-07-03 at 16.26.55.jpeg", "סדרת \"ילדים כמוני\" - 8 ספרים", "לאה גולדברג", "", false, "~65-75 ₪ לספר (אומדן)"],
       ["WhatsApp Image 2026-07-03 at 16.25.49.jpeg", "סדרת \"אייבי ובין\" - 11 ספרים", "אנני ברוז", "", false, "65 ₪ לספר | https://www.steimatzky.co.il/010072997"],
       ["WhatsApp Image 2026-07-03 at 16.23.58.jpeg", "סדרת פרופסור פצפונטבע - 4 ספרים", "מירי לשם", "", false, "~60-68 ₪ לספר (אומדן)"],
       ["WhatsApp Image 2026-07-03 at 16.23.19.jpeg", "סדרת \"אי התעלומות\" - 3 ספרים (א, ב, ג)", "ז׳ול ורן", "", false, "~60-70 ₪ לספר (אומדן - קלאסיקה)"],
@@ -804,6 +834,28 @@ ${css}
         alert('שגיאה בשמירה: ' + e.message);
         if (saveBtn) { saveBtn.textContent = '💾 שמור קובץ'; saveBtn.disabled = false; }
       }
+    }
+
+    // ── Search / filter ──
+    function filterBooks(q) {
+      const term = q.trim().toLowerCase();
+      let visible = 0;
+      grid.querySelectorAll('.book-card').forEach(card => {
+        const text = (card.querySelector('.book-title')?.innerText || '') + ' ' +
+                     (card.querySelector('.book-author')?.innerText || '');
+        const match = !term || text.toLowerCase().includes(term);
+        card.classList.toggle('hidden', !match);
+        if (match) visible++;
+      });
+      let noRes = document.getElementById('noResults');
+      if (!noRes) {
+        noRes = document.createElement('p');
+        noRes.id = 'noResults';
+        noRes.className = 'no-results';
+        noRes.textContent = 'לא נמצאו תוצאות';
+        grid.appendChild(noRes);
+      }
+      noRes.style.display = visible === 0 ? 'block' : 'none';
     }
 
     // Copy text summary for pasting into WhatsApp
