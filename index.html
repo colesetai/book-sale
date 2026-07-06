@@ -577,11 +577,11 @@
         </div>
         <div class="book-info">
           <div class="book-title" contenteditable="true"
-               data-placeholder="שם הספר">${s.title || defaultTitle}</div>
+               data-placeholder="שם הספר">${defaultTitle || s.title || ''}</div>
           <div class="book-author-row">
             <span class="book-author-label">מחבר:</span>
             <div class="book-author" contenteditable="true"
-                 data-placeholder="שם המחבר">${s.author || defaultAuthor}</div>
+                 data-placeholder="שם המחבר">${defaultAuthor || s.author || ''}</div>
           </div>
           <div class="book-price-row">
             <div class="book-price" contenteditable="true"
