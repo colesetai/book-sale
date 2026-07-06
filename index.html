@@ -118,6 +118,17 @@
     }
     @media print { .edit-hint, .toolbar, .add-more { display: none !important; } }
 
+    /* ── PUBLIC MODE (viewed online) ── */
+    .public-mode .edit-hint,
+    .public-mode .toolbar,
+    .public-mode .add-more,
+    .public-mode .sold-btn,
+    .public-mode .ref-note { display: none !important; }
+    .public-mode [contenteditable] { cursor: default; pointer-events: none; outline: none; border-bottom-color: transparent !important; }
+    .public-mode .book-title:empty::before,
+    .public-mode .book-author:empty::before,
+    .public-mode .book-price:empty::before { content: ''; }
+
     /* ── GRID ── */
     .grid {
       display: grid;
@@ -402,6 +413,13 @@
   </div>
 
   <script>
+    // Read-only mode when viewed online (not local file or localhost)
+    const _isPublic = window.location.hostname !== '' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+    if (_isPublic) {
+      document.addEventListener('DOMContentLoaded', () => {}, false);
+      document.documentElement.classList.add('public-mode');
+    }
+
     // Capture clean HTML template before any DOM manipulation
     // Works for file:// URLs - no fetch needed
     const _originalSource = document.documentElement.outerHTML;
