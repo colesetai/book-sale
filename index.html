@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ספרים למכירה</title>
+  <link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
+  <style>
+
+    :root {
+      --parchment: #F4ECD8;
+      --parchment-dark: #E8DCC8;
+      --ink: #1C1208;
+      --burgundy: #6B2737;
+      --burgundy-light: #8B3A4A;
+      --gold: #C4973A;
+      --gold-light: #D4A94A;
+      --cream: #FDFAF4;
+      --shadow: rgba(28, 18, 8, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--parchment);
+      background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(196,151,58,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(107,39,55,0.06) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+      font-family: 'Frank Ruhl Libre', serif;
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      padding: 48px 24px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      display: block;
+      width: 240px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 0 auto 28px;
+    }
+
+    .header-tag {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--burgundy);
+      border: 1px solid var(--burgundy);
+      padding: 4px 14px;
+      margin-bottom: 16px;
+      font-weight: 400;
+      font-family: 'Frank Ruhl Libre', serif;
+    }
+
+    .header h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--ink);
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .header h1 span {
+      color: var(--burgundy);
+    }
+
+    .header-sub {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: #5A4A38;
+      margin-bottom: 22px;
+      line-height: 1.7;
+    }
+
+    .header-contact {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--burgundy);
+      color: #FDF8F0;
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-family: 'Frank Ruhl Libre', serif;
+      transition: background 0.2s;
+    }
+    .header-contact:hover { background: var(--burgundy-light); }
+
+    .header::after {
+      content: '';
+      display: block;
+      width: 240px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 28px auto 0;
+    }
+
+    /* ── EDIT HINT ── */
+    .edit-hint {
+      text-align: center;
+      color: var(--burgundy);
+      font-size: 0.82rem;
+      margin-bottom: 28px;
+      opacity: 0.7;
+    }
+    @media print { .edit-hint, .toolbar, .add-more { display: none !important; } }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── CARD ── */
+    .book-card {
+      background: var(--cream);
+      border: 1px solid rgba(196,151,58,0.2);
+      box-shadow: 0 4px 20px var(--shadow), 0 1px 3px rgba(28,18,8,0.08);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .book-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px var(--shadow), 0 2px 6px rgba(28,18,8,0.1);
+    }
+
+    .book-card .img-wrap {
+      position: relative;
+      width: 100%;
+      padding-top: 72%;
+      overflow: hidden;
+      background: var(--parchment-dark);
+    }
+    .book-card .img-wrap img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .book-card:hover .img-wrap img {
+      transform: scale(1.03);
+    }
+
+    /* sold overlay */
+    .book-card.sold .img-wrap::after {
+      content: 'נמכר';
+      position: absolute;
+      inset: 0;
+      background: rgba(107,39,55,0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+
+    .book-info {
+      padding: 14px 16px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .book-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.4;
+      color: var(--ink);
+      outline: none;
+      border-bottom: 1px dashed transparent;
+      transition: border-color 0.2s;
+      min-height: 1.4em;
+    }
+    .book-title:focus {
+      border-color: var(--gold);
+    }
+    .book-title:empty::before {
+      content: attr(data-placeholder);
+      color: #B0A090;
+      font-weight: 300;
+    }
+
+    .book-author-row {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+    .book-author-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--burgundy);
+      white-space: nowrap;
+      opacity: 0.7;
+      flex-shrink: 0;
+    }
+    .book-author {
+      font-size: 0.85rem;
+      font-weight: 300;
+      color: #7A6A58;
+      outline: none;
+      border-bottom: 1px dashed transparent;
+      transition: border-color 0.2s;
+      min-height: 1.2em;
+      flex: 1;
+    }
+    .book-author:focus { border-color: var(--gold); }
+    .book-author:empty::before {
+      content: attr(data-placeholder);
+      color: #C0B0A0;
+    }
+
+    .book-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+
+    .book-price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--burgundy);
+      outline: none;
+      border-bottom: 1px dashed transparent;
+      transition: border-color 0.2s;
+      min-width: 40px;
+    }
+    .book-price:focus { border-color: var(--gold); }
+    .book-price:empty::before {
+      content: attr(data-placeholder);
+      color: #C0B0A0;
+      font-weight: 300;
+    }
+
+    .sold-btn {
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      background: transparent;
+      border: 1px solid var(--parchment-dark);
+      color: #8A7A68;
+      cursor: pointer;
+      font-family: 'Frank Ruhl Libre', serif;
+      transition: all 0.2s;
+    }
+    .sold-btn:hover { border-color: var(--burgundy); color: var(--burgundy); }
+    .book-card.sold .sold-btn { background: var(--burgundy); color: #fff; border-color: var(--burgundy); }
+
+    /* ── REF NOTE (editor only, hidden on export/print) ── */
+    .ref-note {
+      font-size: 0.7rem;
+      color: #7A6A58;
+      background: rgba(196,151,58,0.08);
+      border: 1px dashed rgba(196,151,58,0.4);
+      padding: 3px 8px;
+      margin-top: 4px;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      line-height: 1.5;
+    }
+    .ref-note .ref-label { opacity: 0.6; white-space: nowrap; flex-shrink: 0; }
+    .ref-note a { color: var(--burgundy); text-decoration: none; opacity: 0.9; }
+    .ref-note a:hover { text-decoration: underline; opacity: 1; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 48px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      font-family: 'Frank Ruhl Libre', serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: var(--ink);
+      color: var(--parchment);
+    }
+    .btn-primary:hover { background: var(--burgundy); }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--ink);
+      color: var(--ink);
+    }
+    .btn-secondary:hover { background: var(--parchment-dark); }
+    .btn-publish {
+      background: var(--burgundy);
+      color: #FDF8F0;
+    }
+    .btn-publish:hover { background: var(--burgundy-light); }
+    .btn-publish:disabled { opacity: 0.6; cursor: default; }
+    .btn-save {
+      background: var(--gold);
+      color: var(--ink);
+    }
+    .btn-save:hover { background: var(--gold-light); }
+
+    /* ── ADD MORE ── */
+    .add-more {
+      grid-column: 1 / -1;
+      border: 2px dashed var(--parchment-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      color: #A0907E;
+      font-size: 0.9rem;
+      gap: 8px;
+    }
+    .add-more:hover {
+      border-color: var(--gold);
+      background: rgba(196,151,58,0.04);
+      color: var(--gold);
+    }
+    .add-more svg { opacity: 0.5; }
+    .add-more:hover svg { opacity: 1; }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      body { background: white; padding: 0; }
+      .book-card { break-inside: avoid; }
+      .book-card:hover { transform: none; box-shadow: 0 2px 8px var(--shadow); }
+      .header { padding: 24px 24px 20px; }
+      .ref-note { display: none !important; }
+    }
+  
+    /* Published overrides - read only */
+    .edit-hint, .add-more, .sold-btn, .btn-publish, .btn-secondary { display: none !important; }
+    [contenteditable] { cursor: default; pointer-events: none; }
+    .book-title:empty::before, .book-author:empty::before, .book-price:empty::before { content: ''; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>ספרים <span>למכירה</span></h1>
+    <p class="header-sub">אנחנו עוברים לחו"ל ומוכרים את ספריית הבית.<br/>כל הספרים במצב טוב.<br/><br/>מחירים נעים בין 5 ל-25 ש"ח לספר. פרטים נוספים בפרטי.<br/>סדרות ימכרו בעדיפות למי שלוקח את הסדרה כולה.<br/>איסוף מרחוב הכלנית 8, כפר סבא.<br/>ליצירת קשר: מאיה 054-211-9443</p>
+  </header>
+  <div class="grid">
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.28.54.jpeg" alt="סדרת גינגי - כ-30 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת גינגי - כ-30 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">גלילה רון פדר-עמית</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.30.20.jpeg" alt="סדרת מנהרת הזמן - 3 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת מנהרת הזמן - 3 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">גלילה רון פדר-עמית</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.32.24.jpeg" alt="יותם - בלש פרטי + בלש חוקר - 2 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">יותם - בלש פרטי + בלש חוקר - 2 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">גלילה רון פדר-עמית</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.35.01.jpeg" alt="ילדי בית העץ - 2 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ילדי בית העץ - 2 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">רן כהן אהרונוב</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.49.06.jpeg" alt="הרפתקאות דוד אריה - 7 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">הרפתקאות דוד אריה - 7 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ינץ לוי</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.26.55.jpeg" alt="סדרת "ילדים כמוני" - 8 ספרים עם צילומים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת "ילדים כמוני" - 8 ספרים עם צילומים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">לאה גולדברג</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.25.49.jpeg" alt="סדרת "אייבי ובין" - 11 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת "אייבי ובין" - 11 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">אנני ברוז</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.23.58.jpeg" alt="סדרת פרופסור פצפונטבע - 4 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת פרופסור פצפונטבע - 4 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">מירי לשם</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.23.19.jpeg" alt="סדרת "אי התעלומות" - 3 ספרים (א, ב, ג)" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת "אי התעלומות" - 3 ספרים (א, ב, ג)</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ז׳ול ורן</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.22.35.jpeg" alt="האנציקלופדיה הראשונה שלי - 5 ספרי דיסני עם פו הדוב" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">האנציקלופדיה הראשונה שלי - 5 ספרי דיסני עם פו הדוב</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">Disney</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.19.48.jpeg" alt="סדרת "הספר הכפול" - 10 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת "הספר הכפול" - 10 ספרים</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.16.43.jpeg" alt="סדרת אידורה מון - 5 ספרים + 1 אמרלד + 1 מיראבל" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת אידורה מון - 5 ספרים + 1 אמרלד + 1 מיראבל</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">הריאט מאנקסטר</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.14.17.jpeg" alt="סדרת "שיר שי" - 7 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת "שיר שי" - 7 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">סמדר שיר</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.54.38.jpeg" alt="מילון אבן-שושן לתלמידי בית הספר" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">מילון אבן-שושן לתלמידי בית הספר</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">אברהם אבן-שושן</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.56.19.jpeg" alt="אנה קדברה - בג'אה עם כנפיים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">אנה קדברה - בג'אה עם כנפיים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">פדרו פגנאס</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.57.31.jpeg" alt="ספר הג'ונגל" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר הג'ונגל</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">Disney</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.58.26.jpeg" alt="ליבי, או: מה קרה לאיש-עם-הכלב?" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ליבי, או: מה קרה לאיש-עם-הכלב?</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">הדס ליבוביץ'</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.59.37.jpeg" alt="פסוליה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">פסוליה</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">אסף ארבל</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2016.59.58.jpeg" alt="בילבי גרב-ברך" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">בילבי גרב-ברך</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">אסטריד לינדגרן</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2017.00.46.jpeg" alt="הנסיכה אביגיל ובית החרשת לרגשות" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">הנסיכה אביגיל ובית החרשת לרגשות</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ינץ לוי</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2017.13.24.jpeg" alt="ספרי נוער במצב מעולה - דפי תמר, השביעיה הסודית, עדי ועדי, אלרגיה, חבורת כוח המוח" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי נוער במצב מעולה - דפי תמר, השביעיה הסודית, עדי ועדי, אלרגיה, חבורת כוח המוח</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">יהונתן גפן, אניד בליטון, דבורה עומר, סמדר שיר</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2017.10.49.jpeg" alt="ספרי נוער - פרסי ג'קסון, החוקים הסודיים של אביגיל, אלישע - מצב משומש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי נוער - פרסי ג'קסון, החוקים הסודיים של אביגיל, אלישע - מצב משומש</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ריק ריירדן, אלעד חן, רונית רוקאס</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Image%202026-07-03%20at%2017.09.52.jpeg" alt="סדרת פליקס - 3 ספרים (מכתבים מפליקס ועוד)" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת פליקס - 3 ספרים (מכתבים מפליקס ועוד)</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">אנט לנגן</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000135-PHOTO-2026-07-03-16-52-45.jpg" alt="ספרי שאלות ותשובות / טבע / גוף" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי שאלות ותשובות / טבע / גוף</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/whatsapp_chat/00000150-PHOTO-2026-07-03-17-17-09.jpg" alt="ספרי ילדים של מאיר שלו / יוסי אבולעפיה - במצב חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים של מאיר שלו / יוסי אבולעפיה - במצב חדש</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">מאיר שלו / יוסי אבולעפיה</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000151-PHOTO-2026-07-03-17-18-47.jpg" alt="סדרת איש הכלב - ספרים 3-5, במצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת איש הכלב - ספרים 3-5, במצב מעולה</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">דאב פילקי</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000152-PHOTO-2026-07-03-17-20-48.jpg" alt="סדרת איש הכלב - ספרים 1-2 (חלק מהדפים קרועים) - למסירה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת איש הכלב - ספרים 1-2 (חלק מהדפים קרועים) - למסירה</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">דאב פילקי</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000153-PHOTO-2026-07-03-17-23-56.jpg" alt="סדרת פיניאס ופרב - 5 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת פיניאס ופרב - 5 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">Disney</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000154-PHOTO-2026-07-04-07-56-45.jpg" alt="סדרת טפיטי - ספרים 1-9 (ללא 6)" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת טפיטי - ספרים 1-9 (ללא 6)</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">יוליה במה</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000155-PHOTO-2026-07-04-07-59-43.jpg" alt="ספרי נסיכות / פיות - ראשית קריאה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי נסיכות / פיות - ראשית קריאה</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ויויאן פרנץ</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000156-PHOTO-2026-07-04-08-01-38.jpg" alt="ספרי פרקים - ראשית קריאה לתחילת יסודי" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פרקים - ראשית קריאה לתחילת יסודי</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">קאלי ברקלי, פדרו מניאס, ארהרד דיטל</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000157-PHOTO-2026-07-04-08-03-47.jpg" alt="הכבשה רחלי - 2 ספרים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">הכבשה רחלי - 2 ספרים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">רוב סקוטון</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000159-PHOTO-2026-07-04-08-09-08.jpg" alt="הממלכה הקטנה - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">הממלכה הקטנה - חדש</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">אתגר קרת</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000160-PHOTO-2026-07-04-08-14-43.jpg" alt="יונתן בלש ממש - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">יונתן בלש ממש - חדש</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">דוד גרוסמן</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000161-PHOTO-2026-07-04-08-16-26.jpg" alt="ספרי ילדים - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים - חדש</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">צח פלדמן, אבירמה גולן, פיטר ה׳ רינו לדס, מיריק שניר</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000163-PHOTO-2026-07-04-08-25-55.jpg" alt="ספרי ילדים / נוער עם פרקים - פרסי ג'קסון, אלישע, דפי תמר, עדי ועדי, דני אלוף העולם, החוקים הסודיים של אביגיל, השביעייה הסודית" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים / נוער עם פרקים - פרסי ג'קסון, אלישע, דפי תמר, עדי ועדי, דני אלוף העולם, החוקים הסודיים של אביגיל, השביעייה הסודית</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ג׳ף קיני, אניד בליטון, רונית רוקאס, רואלד דאל, סמדר שיר, דבורה עומר, ריק ריירדן, אלעד חן</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000164-PHOTO-2026-07-04-08-28-53.jpg" alt="ספרי ילדים עם פרקים - כחדש - חבורת כח המוח, הסיפור של טרייסי בייקר" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים עם פרקים - כחדש - חבורת כח המוח, הסיפור של טרייסי בייקר</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">זהר אביב, ג׳קלין ווילסון</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000165-PHOTO-2026-07-04-08-30-11.jpg" alt="ספר יחידת החילוץ - מפרץ ההרפתקאות" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר יחידת החילוץ - מפרץ ההרפתקאות</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">Disney</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000166-PHOTO-2026-07-04-08-31-01.jpg" alt="ספר נוער - מעורב ירושלמי" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר נוער - מעורב ירושלמי</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ליאת רוטנר</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000168-PHOTO-2026-07-04-08-51-22.jpg" alt="ספר כלי תחבורה עם דפים נפתחים - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר כלי תחבורה עם דפים נפתחים - חדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000169-PHOTO-2026-07-04-08-53-34.jpg" alt="ספר אגדות - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר אגדות - חדש</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ינץ לוי</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000170-PHOTO-2026-07-04-09-04-40.jpg" alt="ספרי ילדים של מאיר שלו / יוסי אבולעפיה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים של מאיר שלו / יוסי אבולעפיה</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">מאיר שלו / יוסי אבולעפיה</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000172-PHOTO-2026-07-04-16-02-15.jpg" alt="יומנו של חנון - 9 ספרים (2-5, 7-9 ועוד שניים)" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">יומנו של חנון - 9 ספרים (2-5, 7-9 ועוד שניים)</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ג׳ף קיני</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000173-PHOTO-2026-07-04-16-04-12.jpg" alt="סדרת סופר סטרייקה - ספרים 1, 3-5" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת סופר סטרייקה - ספרים 1, 3-5</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000174-PHOTO-2026-07-04-16-09-39.jpg" alt="סדרת צפרדע וקרפד - ראשית קריאה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת צפרדע וקרפד - ראשית קריאה</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">ארנולד לובל</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000175-PHOTO-2026-07-04-16-12-12.jpg" alt="סדרת הרעשנים (קומיקס)" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת הרעשנים (קומיקס)</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">nickelodeon</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000176-PHOTO-2026-07-04-16-15-21.jpg" alt="ספרים מאת אוליבר שרץ - לגיל יסודי" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרים מאת אוליבר שרץ - לגיל יסודי</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">אוליבר שרץ</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000177-PHOTO-2026-07-04-16-18-30.jpg" alt="סדרת כראמל - ספרים 1-4, 6" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת כראמל - ספרים 1-4, 6</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">מאירה ברנע-גולדברג</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000178-PHOTO-2026-07-04-16-24-06.jpg" alt="סדרת האנק צ'יפסר - ספרים 2+3" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת האנק צ'יפסר - ספרים 2+3</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">הנרי וינקלר, לין אוליבר</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000179-PHOTO-2026-07-04-16-25-50.jpg" alt="סדרת משחקי בילוד - ספרים 3,4,6,7" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת משחקי בילוד - ספרים 3,4,6,7</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">מיכאל אבס</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000180-PHOTO-2026-07-04-16-29-47.jpg" alt="ספרי ילדים גיל יסודי - ילד נינג׳ה, דני הדרקון, עובדות מדהימות, בובספוג, גרוויטי פולס" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים גיל יסודי - ילד נינג׳ה, דני הדרקון, עובדות מדהימות, בובספוג, גרוויטי פולס</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000181-PHOTO-2026-07-04-16-30-59.jpg" alt="ספרי ילדים על כדורגל" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים על כדורגל</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000182-PHOTO-2026-07-04-16-36-30.jpg" alt="אלרגיה - ספר פרקים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">אלרגיה - ספר פרקים</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">יהונתן גפן</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000183-PHOTO-2026-07-04-16-42-35.jpg" alt="סדרת ספרי חשיבה חיובית לילדים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת ספרי חשיבה חיובית לילדים</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000184-PHOTO-2026-07-04-16-44-07.jpg" alt="ספרים על גוף האדם - הכחול תלת מימדי, הצהוב עם לשוניות נפתחות" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרים על גוף האדם - הכחול תלת מימדי, הצהוב עם לשוניות נפתחות</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000185-PHOTO-2026-07-04-16-58-47.jpg" alt="ספרי מדע / שאלות ותשובות על העולם / דינוזאורים / טבע" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי מדע / שאלות ותשובות על העולם / דינוזאורים / טבע</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000189-PHOTO-2026-07-06-14-38-57.jpg" alt="ספרי פעוטות" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">מיריק שניר</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000190-PHOTO-2026-07-06-14-51-27.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000191-PHOTO-2026-07-06-14-52-15.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000192-PHOTO-2026-07-06-14-53-06.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000193-PHOTO-2026-07-06-14-53-32.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000194-PHOTO-2026-07-06-14-54-02.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000195-PHOTO-2026-07-06-14-55-04.jpg" alt="ספרי ילדים - מצב כחדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים - מצב כחדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000196-PHOTO-2026-07-06-15-00-25.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000197-PHOTO-2026-07-06-15-00-45.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000198-PHOTO-2026-07-06-15-01-56.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000199-PHOTO-2026-07-06-15-02-38.jpg" alt="ספרי פעוטות וילדים" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000200-PHOTO-2026-07-06-15-04-18.jpg" alt="ספר עם משקפי תלת ממד" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר עם משקפי תלת ממד</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000201-PHOTO-2026-07-06-15-04-51.jpg" alt="ספר עם דיסק לשמיעה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר עם דיסק לשמיעה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000202-PHOTO-2026-07-06-15-05-26.jpg" alt="ספרי פעוטות וילדים - מצב מעולה" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות וילדים - מצב מעולה</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000203-PHOTO-2026-07-06-15-06-22.jpg" alt="ספרי ילדים עם הקדשה - מצב משומש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים עם הקדשה - מצב משומש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000204-PHOTO-2026-07-06-15-08-19.jpg" alt="ספר רב ממדי" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר רב ממדי</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000205-PHOTO-2026-07-06-15-09-03.jpg" alt="ספר "2 כחול" - למצוא את ה-2 הכחול המתחבא" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר "2 כחול" - למצוא את ה-2 הכחול המתחבא</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000206-PHOTO-2026-07-06-15-10-39.jpg" alt="ספר שאלות ותשובות" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספר שאלות ותשובות</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000207-PHOTO-2026-07-06-17-14-57.jpg" alt="ספרים מנגנים לפעוטות - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרים מנגנים לפעוטות - חדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000208-PHOTO-2026-07-06-17-16-14.jpg" alt="ספרי ילדים - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים - חדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000209-PHOTO-2026-07-06-17-17-21.jpg" alt="ספרי ילדים - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים - חדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000210-PHOTO-2026-07-06-17-18-21.jpg" alt="ספרי ילדים - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים - חדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000211-PHOTO-2026-07-06-17-20-30.jpg" alt="ספרים על גוף האדם / מדע - עם לשוניות נפתחות - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרים על גוף האדם / מדע - עם לשוניות נפתחות - חדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000212-PHOTO-2026-07-06-17-23-20.jpg" alt="ספרי ילדים דפים עבים - הארנב הקשיב, טרופותי - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים דפים עבים - הארנב הקשיב, טרופותי - חדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000213-PHOTO-2026-07-06-17-24-19.jpg" alt="ספרי פעוטות - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי פעוטות - חדש</div>
+            
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000214-PHOTO-2026-07-06-17-26-11.jpg" alt="ספרי ילדים באנגלית - חדש" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">ספרי ילדים באנגלית - חדש</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">Dr. Seuss</div>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="book-card">
+          <div class="img-wrap">
+            <img src="file:///Users/etai.coles/Downloads/WhatsApp%20Chat%20-%20%D7%A7%D7%91%D7%95%D7%A6%D7%AA%20%D7%9E%D7%9B%D7%99%D7%A8%D7%94%20(2)/00000215-PHOTO-2026-07-06-17-29-00.jpg" alt="סדרת סיפורי איתמר" />
+          </div>
+          <div class="book-info">
+            <div class="book-title">סדרת סיפורי איתמר</div>
+            <div class="book-author-row">
+              <span class="book-author-label">מחבר:</span>
+              <div class="book-author">דויד גרוסמן</div>
+            </div>
+            
+          </div>
+        </div></div>
+  <div class="toolbar">
+    <button class="btn btn-primary" onclick="window.print()">🖨 הדפס / שמור PDF</button>
+  </div>
+</body>
+</html>
