@@ -394,6 +394,26 @@
     .book-card.hidden { display: none; }
     .no-results { text-align: center; color: #8A7A68; font-size: 0.95rem; padding: 40px 0; grid-column: 1/-1; display: none; }
 
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(28,18,8,0.88);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 92vh;
+      object-fit: contain;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.6);
+    }
+    .book-card .img-wrap { cursor: zoom-in; }
+
     /* ── PRINT STYLES ── */
     @media print {
       body { background: white; padding: 0; }
@@ -419,6 +439,10 @@
   </header>
 
   <p class="edit-hint">✏️ לחצו על כל שדה כדי לערוך - שם הספר, מחבר, מחיר</p>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="" />
+  </div>
 
   <div class="search-wrap">
     <input type="search" id="searchInput" placeholder="חיפוש לפי שם ספר או מחבר..." oninput="filterBooks(this.value)" />
@@ -836,6 +860,18 @@ ${css}
         if (saveBtn) { saveBtn.textContent = '💾 שמור קובץ'; saveBtn.disabled = false; }
       }
     }
+
+    // ── Lightbox ──
+    document.getElementById('bookGrid').addEventListener('click', e => {
+      const img = e.target.closest('.img-wrap')?.querySelector('img');
+      if (!img || !img.src) return;
+      document.getElementById('lightboxImg').src = img.src;
+      document.getElementById('lightbox').classList.add('open');
+    });
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
     // ── Search / filter ──
     function filterBooks(q) {
