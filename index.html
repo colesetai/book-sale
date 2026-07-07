@@ -495,10 +495,7 @@
   <script>
     // Read-only mode when viewed online (not local file or localhost)
     const _isPublic = window.location.hostname !== '' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
-    if (_isPublic) {
-      document.addEventListener('DOMContentLoaded', () => {}, false);
-      document.documentElement.classList.add('public-mode');
-    }
+    if (_isPublic) document.documentElement.classList.add('public-mode');
 
     // Capture clean HTML template before any DOM manipulation
     // Works for file:// URLs - no fetch needed
@@ -681,9 +678,16 @@
       autosave();
     }
 
-    // Autosave on blur
+    // Autosave on blur + auto-append ₪ to plain numbers in price field
     document.addEventListener('blur', e => {
-      if (e.target.contentEditable === 'true') autosave();
+      if (e.target.contentEditable !== 'true') return;
+      if (e.target.classList.contains('book-price')) {
+        const val = e.target.innerText.trim();
+        if (val && /^\d+$/.test(val)) {
+          e.target.innerText = val + ' ₪';
+        }
+      }
+      autosave();
     }, true);
 
     function autosave() {
@@ -740,9 +744,7 @@
           bookData.push({ imgSrc, title, author, price, sold });
         }
 
-        const contact = document.querySelector('.header-contact')?.innerText.trim()
-                        || 'לפרטים - כתבו לי בהודעה פרטית';
-        const html = generatePublishHTML(bookData, contact);
+        const html = generatePublishHTML(bookData);
         const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         const url  = URL.createObjectURL(blob);
         const a    = document.createElement('a');
@@ -758,7 +760,7 @@
       }
     }
 
-    function generatePublishHTML(bookData, contact) {
+    function generatePublishHTML(bookData) {
       const css = document.querySelector('style').textContent;
 
       const cards = bookData.map(({ imgSrc, title, author, price, sold }, i) => `
@@ -928,6 +930,7 @@ ${css}
     function copyText() {
       const lines = ['📚 ספרים למכירה - עוברים לחו"ל!\n'];
       grid.querySelectorAll('.book-card').forEach((card, i) => {
+        if (card.classList.contains('hidden')) return;
         const title  = card.querySelector('.book-title')?.innerText.trim();
         const author = card.querySelector('.book-author')?.innerText.trim();
         const price  = card.querySelector('.book-price')?.innerText.trim();
