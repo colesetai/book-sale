@@ -532,7 +532,7 @@
       ["WhatsApp Chat - קבוצת מכירה (2)/00000183-PHOTO-2026-07-04-16-42-35.jpg", "סדרת ספרי חשיבה חיובית לילדים", "", ""],
       ["WhatsApp Chat - קבוצת מכירה (2)/00000215-PHOTO-2026-07-06-17-29-00.jpg", "סדרת סיפורי איתמר", "דויד גרוסמן", ""],
       ["WhatsApp Image 2026-07-03 at 16.22.35.jpeg", "האנציקלופדיה הראשונה שלי - 5 ספרי דיסני עם פו הדוב", "Disney", "", false, "~65-75 ₪ לספר (אומדן - Disney)"],
-      ["WhatsApp Image 2026-07-03 at 16.54.38.jpeg", "מילון אבן-שושן לתלמידי בית הספר", "אברהם אבן-שושן", "70", false, "70-80 ₪ | https://www.steimatzky.co.il/010620002"],
+      ["WhatsApp Image 2026-07-03 at 16.54.38.jpeg", "מילון אבן-שושן לתלמידי בית הספר", "אברהם אבן-שושן", "70 ₪", false, "70-80 ₪ | https://www.steimatzky.co.il/010620002"],
       ["WhatsApp Image 2026-07-03 at 16.56.19.jpeg", "אנה קדברה - בעיה עם כנפיים", "פדרו פגנאס", "", false, "~65 ₪ (אומדן)"],
       ["WhatsApp Image 2026-07-03 at 16.57.31.jpeg", "ספר הג'ונגל", "Disney", "", false, "~65 ₪ (אומדן - Disney)"],
       ["WhatsApp Image 2026-07-03 at 16.58.26.jpeg", "ליבי, או: מה קרה לאיש-עם-הכלב?", "הדס ליבוביץ'", "", false, "~65 ₪ (אומדן)"],
@@ -639,6 +639,12 @@
 
     books.forEach(([file, title, author, price, sold = false, refNote = ''], i) => {
       grid.appendChild(makeCard(file, title, author, price, i, sold, refNote));
+    });
+
+    // Normalise any plain number prices already in the DOM (e.g. "70" → "70 ₪")
+    grid.querySelectorAll('.book-price').forEach(el => {
+      const v = el.innerText.trim();
+      if (v && /^\d+$/.test(v)) el.innerText = v + ' ₪';
     });
 
     // Add-more drop zone
