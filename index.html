@@ -612,7 +612,7 @@
     function makeCard(filename, defaultTitle, defaultAuthor, defaultPrice, index, defaultSold = false, defaultRefNote = '') {
       const key = filename || ('drag-' + index);
       const s = saved[key] || {};
-      const isSold = s.sold !== undefined ? s.sold : defaultSold;
+      const isSold = defaultSold ? true : (s.sold !== undefined ? s.sold : false);
       const card = document.createElement('div');
       card.className = 'book-card' + (isSold ? ' sold' : '');
       card.dataset.key = key;
