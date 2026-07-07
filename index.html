@@ -843,7 +843,13 @@ ${css}
                 } catch(e2) { filename = ''; }
               }
             } else {
-              try { filename = decodeURIComponent(new URL(img.src).pathname.split('/').pop()); } catch(e) {}
+              // Use dataset.key to preserve full relative path (including subfolder)
+              const key = card.dataset.key || '';
+              if (key && !key.startsWith('drag-')) {
+                filename = key;
+              } else {
+                try { filename = decodeURIComponent(new URL(img.src).pathname.split('/').pop()); } catch(e) {}
+              }
             }
           }
           const title  = card.querySelector('.book-title')?.innerText.trim() || '';
